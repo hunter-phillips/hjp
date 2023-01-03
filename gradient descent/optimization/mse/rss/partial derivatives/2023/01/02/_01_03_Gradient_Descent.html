@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="twitter:card" content="summary_large_image" /><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>What is Gradient Descent? | fastpages</title>
+<meta name="generator" content="Jekyll v4.1.1" />
+<meta property="og:title" content="What is Gradient Descent?" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Gradient descent is a commonly used optimization algorithm in machine learning, especially for regression problems." />
+<meta property="og:description" content="Gradient descent is a commonly used optimization algorithm in machine learning, especially for regression problems." />
+<link rel="canonical" href="https://fastpages.fast.ai/gradient%20descent/optimization/mse/rss/partial%20derivatives/2023/01/02/_01_03_Gradient_Descent.html" />
+<meta property="og:url" content="https://fastpages.fast.ai/gradient%20descent/optimization/mse/rss/partial%20derivatives/2023/01/02/_01_03_Gradient_Descent.html" />
+<meta property="og:site_name" content="fastpages" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2023-01-02T00:00:00-06:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="What is Gradient Descent?" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2023-01-02T00:00:00-06:00","datePublished":"2023-01-02T00:00:00-06:00","description":"Gradient descent is a commonly used optimization algorithm in machine learning, especially for regression problems.","headline":"What is Gradient Descent?","mainEntityOfPage":{"@type":"WebPage","@id":"https://fastpages.fast.ai/gradient%20descent/optimization/mse/rss/partial%20derivatives/2023/01/02/_01_03_Gradient_Descent.html"},"url":"https://fastpages.fast.ai/gradient%20descent/optimization/mse/rss/partial%20derivatives/2023/01/02/_01_03_Gradient_Descent.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="https://fastpages.fast.ai/feed.xml" title="fastpages" /><!-- the google_analytics_id gets auto inserted from the config file -->
+
+
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-57531313-5"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-57531313-5');
+</script>
+
+
+<link rel="shortcut icon" type="image/x-icon" href="/images/favicon.ico"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Primer/15.2.0/primer.css" integrity="sha512-xTz2ys4coGAOz8vuV1NcQBkgVmKhsSEtjbqyMJbBHRplFuvKIUo6xhLHpAyPt9mfR6twHJgn9OgVLuqOvjeBhg==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css" integrity="sha512-1PKOgIY59xJ8Co8+NE6FZ+LOAZKjy+KY8iq0G4B3CyeY6wYHN3yt9PW0XpSriVlkMXe40PTKnXrLnZ9+fkDaog==" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.12.0/katex.min.css" integrity="sha512-h7nl+xz8wgDlNM4NqKEM4F1NkIRS17M9+uJwIGwuo8vGqIl4BhuCKdxjWEINm+xyrUjNCnK5dCrhM0sj+wTIXw==" crossorigin="anonymous" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.12.0/katex.min.js" integrity="sha512-/CMIhXiDA3m2c9kzRyd97MTb3MC6OVnx4TElQ7fkkoRghwDf6gi41gaT1PwF270W6+J60uTmwgeRpNpJdRV6sg==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.12.0/contrib/auto-render.min.js" integrity="sha512-Do7uJAaHZm5OLrIv/yN4w0iG1dbu01kzdMNnFfu/mAqgUk6Nniv2JYHcwH+cNwjqgLcqcuBBk+JRvprLVI8azg==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha512-0doc9hKxR3PYwso42RD1p5ySZpzzuDiOwMrdCEh2WdJZCjcmFKc/wEnL+z8fBQrnHoiNWbo+3fiGkOYXBdQp4A==" crossorigin="anonymous"></script>
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement( document.body, {
+        delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "[%", right: "%]", display: true},
+            {left: "$", right: "$", display: false}
+        ]}
+        );
+    });
+    </script>
+
+
+<script>
+function wrap_img(fn) {
+    if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
+        var elements = document.querySelectorAll(".post img");
+        Array.prototype.forEach.call(elements, function(el, i) {
+            if (el.getAttribute("title") && (el.className != "emoji")) {
+                const caption = document.createElement('figcaption');
+                var node = document.createTextNode(el.getAttribute("title"));
+                caption.appendChild(node);
+                const wrapper = document.createElement('figure');
+                wrapper.className = 'image';
+                el.parentNode.insertBefore(wrapper, el);
+                el.parentNode.removeChild(el);
+                wrapper.appendChild(el);
+                wrapper.appendChild(caption);
+            }
+        });
+    } else { document.addEventListener('DOMContentLoaded', fn); }
+}
+window.onload = wrap_img;
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function(){
+    // add link icon to anchor tags
+    var elem = document.querySelectorAll(".anchor-link")
+    elem.forEach(e => (e.innerHTML = '<i class="fas fa-link fa-xs"></i>'));
+    });
+</script>
+</head>
+<body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">fastpages</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/about/">About Me</a><a class="page-link" href="/search/">Search</a><a class="page-link" href="/categories/">Tags</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">What is Gradient Descent?</h1><p class="page-description">Gradient descent is a commonly used optimization algorithm in machine learning, especially for regression problems.</p><p class="post-meta post-meta-title"><time class="dt-published" datetime="2023-01-02T00:00:00-06:00" itemprop="datePublished">
+        Jan 2, 2023
+      </time>
+       • <span class="read-time" title="Estimated read time">
+    
+    
+      7 min read
+    
+</span></p>
+
+    
+      <p class="category-tags"><i class="fas fa-tags category-tags-icon"></i></i> 
+      
+        <a class="category-tags-link" href="/categories/#gradient descent">gradient descent</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/categories/#optimization">optimization</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/categories/#MSE">MSE</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/categories/#RSS">RSS</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/categories/#partial derivatives">partial derivatives</a>
+        
+      
+      </p>
+    
+
+    
+      
+        <div class="pb-5 d-flex flex-justify-center">
+          <div class="px-2">
+
+    <a href="https://github.com/fastai/fastpages/tree/master/_notebooks/2023_01_03_Gradient_Descent.ipynb" role="button" target="_blank">
+<img class="notebook-badge-image" src="/assets/badges/github.svg" alt="View On GitHub">
+    </a>
+</div>
+
+          <div class="px-2">
+    <a href="https://mybinder.org/v2/gh/fastai/fastpages/master?filepath=_notebooks%2F2023_01_03_Gradient_Descent.ipynb" target="_blank">
+        <img class="notebook-badge-image" src="/assets/badges/binder.svg" alt="Open In Binder"/>
+    </a>
+</div>
+
+          <div class="px-2">
+    <a href="https://colab.research.google.com/github/fastai/fastpages/blob/master/_notebooks/2023_01_03_Gradient_Descent.ipynb" target="_blank">
+        <img class="notebook-badge-image" src="/assets/badges/colab.svg" alt="Open In Colab"/>
+    </a>
+</div>
+          <div class="px-2">
+  <a href="https://deepnote.com/launch?url=https%3A%2F%2Fgithub.com%2Ffastai%2Ffastpages%2Fblob%2Fmaster%2F_notebooks%2F2023_01_03_Gradient_Descent.ipynb" target="_blank">
+      <img class="notebook-badge-image" src="/assets/badges/deepnote.svg" alt="Launch in Deepnote"/>
+  </a>
+</div>
+
+        </div>
+      </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <!--
+#################################################
+### THIS FILE WAS AUTOGENERATED! DO NOT EDIT! ###
+#################################################
+# file to edit: _notebooks/2023_01_03_Gradient_Descent.ipynb
+-->
+
+<div class="container" id="notebook-container">
+        
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<ul>
+<li>According to <a href="https://en.wikipedia.org/wiki/Gradient_descent">Wikipedia</a>, "<strong>gradient descent</strong> is a first-order iterative optimization algorithm for finding a <em>local minimum</em> of a differentiable function."<ul>
+<li><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/68/Extrema_example_original.svg/220px-Extrema_example_original.svg.png" alt="" /></li>
+</ul>
+</li>
+<li>This is the algorithm's equation, which needs repeated until a local minimum is reached for each weight, from $j=0$ to $k$:<ul>
+<li>$w_j = w_j - \alpha\frac{\delta}{\delta w_i}J(w_j,...,w_k)$</li>
+</ul>
+</li>
+<li>For a model with one weight and one bias:<ul>
+<li>$w_0 = w_0 - \alpha\frac{\delta}{\delta w_0}J(w_0,w_1)$</li>
+<li>$w_1 = w_1 - \alpha \frac{\delta}{\delta w_1}J(w_0,w_1)$</li>
+</ul>
+</li>
+<li>For a model with two weights and one bias:<ul>
+<li>$w_0 = w_0 - \alpha  \frac{\delta}{\delta w_0}J(w_0,w_1,w_2)$</li>
+<li>$w_1 = w_1 - \alpha  \frac{\delta}{\delta w_1}J(w_0,w_1,w_2)$</li>
+<li>$w_2 = w_2 - \alpha  \frac{\delta}{\delta w_2}J(w_0,w_1,w_2)$</li>
+</ul>
+</li>
+<li>For a model with $k-1$ weights and one bias:<ul>
+<li>$w_0 = w_0 - \alpha  \frac{\delta}{\delta w_0}J(w_0,w_1,w_2,...,w_k)$</li>
+<li>$w_1 = w_1 - \alpha  \frac{\delta}{\delta w_1}J(w_0,w_1,w_2,...,w_k)$</li>
+<li>$w_2 = w_2 - \alpha  \frac{\delta}{\delta w_2}J(w_0,w_1,w_2,...,w_k)$</li>
+<li>...</li>
+<li>$w_k = w_k - \alpha \frac{\delta}{\delta w_k}J(w_0,w_1,w_2,...,w_k)$</li>
+</ul>
+</li>
+</ul>
+<h2 id="Components">Components<a class="anchor-link" href="#Components"> </a></h2><ul>
+<li>$\alpha$ is known as the step size or learning rate. It dictates how quickly a model will be optimized.</li>
+<li>According to <a href="https://www.analyticsvidhya.com/blog/2020/10/how-does-the-gradient-descent-algorithm-work-in-machine-learning/">Analytics Vidhya</a>, $J$ is a <strong>cost function</strong>, which "quantifies the error between predicted values and expected values and presents it in the form of a single real number."</li>
+<li>The <strong>mean squared error (MSE)</strong> is a commonly used cost function:<ul>
+<li>$MSE = \frac{1}{n}\sum\limits_{i=1}^{n} (\hat{Y}_i - Y_i)^2$<ul>
+<li>$n$ represents the sample size</li>
+<li>$\hat{Y}_i$ represents the predicted value, which is output from a model</li>
+<li>$Y_i$ represents the expected value, which should be held constant during optimization</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="Rewriting-the-MSE">Rewriting the MSE<a class="anchor-link" href="#Rewriting-the-MSE"> </a></h2><ul>
+<li><p>To best understand this cost function, $\hat{Y}_i$ must be expressed using weights.</p>
+<ul>
+<li>For a model with one weight ($w_1$) and one bias ($w_0$):<ul>
+<li>$\hat{Y}_i = f(w_0,w_1) = w_1X_i+w_0$<ul>
+<li>$X_i$ represents the features, which should be held constant during optimization</li>
+<li>This is a line.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>For a model with two weights ($w_1$ and $w_2$) and one bias ($w_0$):</p>
+<ul>
+<li><p>$\hat{Y}_i = f(w_0,w_1,w_2) = w_{2} X_{2_i}+ w_1 X_{1_i} +w_0$</p>
+<ul>
+<li>$X_1$ and $X_2$ represent the features, which should be held constant during optimization</li>
+<li>This is a plane.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>In terms of weights, the MSE can be represented:<ul>
+<li>For one weight and one bias ($\hat{Y}_i = f(w_0,w_1) = w_1X_i+w_0$):<ul>
+<li>$MSE = \frac{1}{n}\sum\limits_{i=1}^{n} (f(w_0,w_1) - Y_i)^2$</li>
+<li>$MSE = \frac{1}{n}\sum\limits_{i=1}^{n} (w_1X_i+w_0 - Y_i)^2$</li>
+</ul>
+</li>
+<li>For two weights and one bias ($\hat{Y}_i = f(w_0,w_1,w_2) = w_2X_2+w_1X_1+w_0$):<ul>
+<li>$MSE = \frac{1}{n}\sum\limits_{i=1}^{n} (f(w_0,w_1,w_2) - Y_i)^2$</li>
+<li>$MSE = \frac{1}{n}\sum\limits_{i=1}^{n} (w_2X_{2_i}+w_1X_{1_i}+w_0 - Y_i)^2$</li>
+</ul>
+</li>
+<li>For $k-1$ weights and one bias ( $\hat{Y}_i = f(w_0,w_1,w_2,...,w_k) = w_0 + \sum\limits^{k}_{j=1} w_jX_{j_i} = w_0 + w_1X_1 + ... + w_kX_k)$:<ul>
+<li>$MSE = \frac{1}{n}\sum\limits_{i=1}^{n} (f(w_0,w_1,w_2,...,w_k) - Y_i)^2$</li>
+<li>$MSE = \frac{1}{n}\sum\limits_{i=1}^{n} (w_0 + \sum\limits^{k}_{j=1}w_jX_{j_i} - Y_i)^2$</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="MSE-as-a-Cost-Function">MSE as a Cost Function<a class="anchor-link" href="#MSE-as-a-Cost-Function"> </a></h2><ul>
+<li>Now, $MSE$ can be expressed using $J$:<ul>
+<li>For one weight and one bias:<ul>
+<li>$MSE = J(w_0,w_1) = \frac{1}{n}\sum_{i=1}^{n} (w_1X_i+w_0 - Y_i)^2$</li>
+</ul>
+</li>
+<li>For two weights and bias:<ul>
+<li>$MSE = J(w_0,w_1,w_2) = \frac{1}{n}\sum_{i=1}^{n} (w_2X_{2_i}+w_1X_{1_i}+w_0 - Y_i)^2$</li>
+</ul>
+</li>
+<li>For $k$ weights and one bias:<ul>
+<li>$MSE = J(w_0,w_1,w_2,...,w_k) = \frac{1}{n}\sum\limits_{i=1}^{n} (w_0 + \sum\limits^{k}_{j=1}w_jX_{j_i} - Y_i)^2$</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>As a reminder, $X_{1...k}$ and $Y$ should be treated as constants during optimization.</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Partial-Derivatives">Partial Derivatives<a class="anchor-link" href="#Partial-Derivatives"> </a></h1><ul>
+<li>For gradient descent, the partial derivative, $\frac{\delta}{\delta w_j}J(w_j,...,w_k)$, with respect to $w_j$ for $j=0$ to $k$, must be found:<ul>
+<li>$w_j = w_j - \alpha * \frac{\delta}{\delta w_j}J(w_j,...,w_k)$</li>
+</ul>
+</li>
+<li>Partial derivatives are used when a function is made up of multiple variables and when the goal is to see how the function changes when just one variable changes while holding the others constant.</li>
+<li>The following summary from <a href="https://www.khanacademy.org/math/multivariable-calculus/multivariable-derivatives/partial-derivative-and-gradient-articles/a/introduction-to-partial-derivatives">Khan Academy</a> proves useful:<ul>
+<li><img src="https://drive.google.com/uc?export=view&amp;id=1D3kKtnmxQjmhAuOTnYuP8C7fRPNUfSkq" width="400" /></li>
+</ul>
+</li>
+<li>These generic rules for derivatives are also useful:</li>
+</ul>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-python"><pre><span></span><span class="kn">from</span> <span class="nn">IPython.display</span> <span class="kn">import</span> <span class="n">IFrame</span>
+<span class="n">IFrame</span><span class="p">(</span><span class="s2">&quot;https://drive.google.com/file/d/11sgPFPMGu9OUOM0g7KZ3JU735Wdlxqi5/preview&quot;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">800</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+
+        <iframe width="800" height="300" src="https://drive.google.com/file/d/11sgPFPMGu9OUOM0g7KZ3JU735Wdlxqi5/preview" frameborder="0" allowfullscreen=""></iframe>
+        
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Gradient-Descent-with-One-Weight-and-One-Bias-Using-MSE-as-the-Cost-Function">Gradient Descent with One Weight and One Bias Using MSE as the Cost Function<a class="anchor-link" href="#Gradient-Descent-with-One-Weight-and-One-Bias-Using-MSE-as-the-Cost-Function"> </a></h2><ul>
+<li>For a model with one weight and one bias:<ul>
+<li>$w_0 = w_0 - \alpha * \frac{\delta}{\delta w_0}J(w_0,w_1)$</li>
+<li>$w_1 = w_1 - \alpha * \frac{\delta}{\delta w_1}J(w_0,w_1)$</li>
+</ul>
+</li>
+<li>Partial derivatives have to be used to find $\frac{\delta}{\delta w_0}J(w_0,w_1)$ and $\frac{\delta}{\delta w_1}J(w_0,w_1)$:</li>
+</ul>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-python"><pre><span></span><span class="kn">from</span> <span class="nn">IPython.display</span> <span class="kn">import</span> <span class="n">IFrame</span>
+<span class="n">IFrame</span><span class="p">(</span><span class="s2">&quot;https://drive.google.com/file/d/1tVEKyL_pI_VEyK_EnNIzlbnp8phMrksP/preview&quot;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">800</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+
+        <iframe width="800" height="300" src="https://drive.google.com/file/d/1tVEKyL_pI_VEyK_EnNIzlbnp8phMrksP/preview" frameborder="0" allowfullscreen=""></iframe>
+        
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<ul>
+<li>The new formulas for gradient descent will be as follows:<ul>
+<li>$w_0 = w_0 - \alpha * \frac{2}{n}\sum\limits_{i=1}^{n}(w_1X_i+w_0 - Y_i)$</li>
+<li>$w_1 = w_1 - \alpha * \frac{2}{n}\sum\limits_{i=1}^{n}X_i(w_1X_i+w_0 - Y_i)$</li>
+</ul>
+</li>
+<li>It is worth mentioning that it is common to see the 2 dropped from the equation as a mathematical convenience.<ul>
+<li>To do this, the original MSE function is rewritten as $MSE = J(w_0,w_1) = \frac{1}{2n}\sum_{i=1}^{n} (w_1X_i+w_0 - Y_i)^2$</li>
+</ul>
+</li>
+<li>When the derivative is computed, the 2 in the numerator and the 2 in the denominator cancel out, leaving the following equations:<ul>
+<li>$w_0 = w_0 - \alpha * \frac{1}{n}\sum\limits_{i=1}^{n}(w_1X_i+w_0 - Y_i)$</li>
+<li>$w_1 = w_1 - \alpha * \frac{1}{n}\sum\limits_{i=1}^{n}X_i(w_1X_i+w_0 - Y_i)$</li>
+</ul>
+</li>
+<li>If this still doesn't make sense, the 2 in the numerator could be thought of as scaling the learning rate:<ul>
+<li>Hence, dividing by 2 is the equivalent of making the learning rate half the size as it was originally.<ul>
+<li>$w_0 = w_0 - \frac{\alpha}{2}\frac{2}{n}\sum\limits_{i=1}^{n}(w_1X_i+w_0 - Y_i)$</li>
+</ul>
+</li>
+<li>Regardless of the equation used, the minimum will be the same since the only visible difference would be the learning rate.<ul>
+<li>Keeping the 2 would make it take more epochs for the minimum to be found.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Gradient-Descent-with-Two-Weights-and-One-Bias-Using-MSE-as-the-Cost-Function">Gradient Descent with Two Weights and One Bias Using MSE as the Cost Function<a class="anchor-link" href="#Gradient-Descent-with-Two-Weights-and-One-Bias-Using-MSE-as-the-Cost-Function"> </a></h2><ul>
+<li>For a model with two weights and one bias:<ul>
+<li>$w_0 = w_0 - \alpha * \frac{\delta}{\delta w_0}J(w_0,w_1,w_2)$</li>
+<li>$w_1 = w_1 - \alpha * \frac{\delta}{\delta w_1}J(w_0,w_1,w_2)$</li>
+<li>$w_2 = w_2 - \alpha * \frac{\delta}{\delta w_2}J(w_0,w_1,w_2)$</li>
+</ul>
+</li>
+<li>Partial derivatives have to be used to find $\frac{\delta}{\delta w_0}J(w_0,w_1,w_2)$, $\frac{\delta}{\delta w_1}J(w_0,w_1,w_2)$, and $\frac{\delta}{\delta w_2}J(w_0,w_1,w_2)$:</li>
+</ul>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-python"><pre><span></span><span class="kn">from</span> <span class="nn">IPython.display</span> <span class="kn">import</span> <span class="n">IFrame</span>
+<span class="n">IFrame</span><span class="p">(</span><span class="s2">&quot;https://drive.google.com/file/d/1HK2b7_l1hsYYOuykxZ_HCiCupXa4vQA4/preview&quot;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">800</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+
+        <iframe width="800" height="300" src="https://drive.google.com/file/d/1HK2b7_l1hsYYOuykxZ_HCiCupXa4vQA4/preview" frameborder="0" allowfullscreen=""></iframe>
+        
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<ul>
+<li>The new formulas for gradient descent are as follows:<ul>
+<li>$w_0 = w_0 - \alpha[\frac{2}{n}\sum\limits_{i=1}^{n}(w_2X_{2_i}+w_1X_{1_i}+w_0 - Y_i)]$ </li>
+<li>$w_1 = w_1 - \alpha[\frac{2}{n}\sum\limits_{i=1}^{n}X_{1_i}(w_2X_{2_i}+w_1X_{1_i}+w_0 - Y_i)]$</li>
+<li>$w_2 = w_2 - \alpha[\frac{2}{n}\sum\limits_{i=1}^{n}X_{2_i}(w_2X_{2_i}+w_1X_{1_i}+w_0 - Y_i)]$</li>
+</ul>
+</li>
+<li>Remember, if the MSE or learning rate are halfed, the 2 will be divided out of the equation, leaving the following equations: <ul>
+<li>$w_0 = w_0 - \alpha [\frac{1}{n}\sum\limits_{i=1}^{n}(w_2X_{2_i}+w_1X_{1_i}+w_0 - Y_i)]$ </li>
+<li>$w_1 = w_1 - \alpha [\frac{1}{n}\sum\limits_{i=1}^{n}X_{1_i}(w_2X_{2_i}+w_1X_{1_i}+w_0 - Y_i)]$</li>
+<li>$w_2 = w_2 - \alpha [\frac{1}{n}\sum\limits_{i=1}^{n}X_{2_i}(w_2X_{2_i}+w_1X_{1_i}+w_0 - Y_i)]$</li>
+</ul>
+</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="A-General-Formula">A General Formula<a class="anchor-link" href="#A-General-Formula"> </a></h1><ul>
+<li>Let $\hat{Y} = w_0 + \sum\limits_{j=1}^{k} w_jX_{j_i}$ for $k$ features.</li>
+<li>$MSE = \frac{1}{n}\sum_\limits{i=1}^{n}(\hat{Y}_i-Y_i)^2= \frac{1}{n}\sum_\limits{i=1}^{n}((w_0 + \sum\limits_{j=1}^{k} w_jX_{j_i})-Y_i)^2$</li>
+<li>The partial derivatives of the weights could be represented as:</li>
+</ul>
+\begin{equation}
+\frac{\delta MSE}{\delta w_j} = 
+\left\{
+    \begin{array}{lr}
+        \frac{1}{n}\sum\limits_{i=1}^{n}(\hat{Y}_i -Y_i) &amp; \text{if } j = 0\\
+        \frac{1}{n}\sum\limits_{i=1}^{n}X_{j_i}(\hat{Y}_i -Y_i)&amp; \text{if } j &gt; 0\\
+    \end{array}
+\right\}
+\end{equation}<ul>
+<li>For $j=0$ to $k$ features, gradient descent would be: $w_j = w_j - \alpha \frac{\delta MSE}{\delta w_j}$<ul>
+<li>Alternatively:
+\begin{equation}
+w_j = 
+\left{
+\begin{array}{lr}
+<pre><code>w_0 - \alpha\frac{1}{n}\sum\limits_{i=1}^{n}(\hat{Y}_i -Y_i) &amp; \text{if } j = 0\\
+w_j - \alpha\frac{1}{n}\sum\limits_{i=1}^{n}X_{j_i}(\hat{Y}_i -Y_i)&amp; \text{if } j &gt; 0\\
+</code></pre>
+\end{array}
+\right}
+\end{equation}</li>
+<li>With the dot product:
+\begin{equation}
+w_j = 
+\left{
+\begin{array}{lr}
+<pre><code>w_0 - \alpha\frac{1}{n}\sum\limits_{i=1}^{n}(\hat{Y}_i -Y_i) &amp; \text{if } j = 0\\
+w_j - \alpha\frac{1}{n}[X_{j_i}\cdot (\hat{Y}_i -Y_i)]&amp; \text{if } j &gt; 0\\
+</code></pre>
+\end{array}
+\right}
+\end{equation}</li>
+</ul>
+</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Gradient-Descent-with-the-Residual-Sum-of-Squares-(RSS)">Gradient Descent with the Residual Sum of Squares (RSS)<a class="anchor-link" href="#Gradient-Descent-with-the-Residual-Sum-of-Squares-(RSS)"> </a></h1><ul>
+<li>The <strong>residual sum of squares</strong> is a cost function that is commonly used and nearly identical to the MSE, but it does not find the average:<ul>
+<li>$RSS = \sum\limits_{i=1}^{n} (\hat{Y}_i - Y_i)^2 = \sum\limits_{i=1}^{n} (w_0 + \sum\limits_{j=1}^{k} w_jX_{j_i} - Y_i)^2$</li>
+</ul>
+</li>
+<li>RSS can be used as the cost function in gradient descent as well.<ul>
+<li>Without the additional division by the number of samples, a smaller learning rate will have a larger impact in most cases.</li>
+</ul>
+</li>
+<li>The partial derivatives of the weights could be represented as:
+\begin{equation}
+\frac{\delta RSS}{\delta w_j} = 
+\left{
+  \begin{array}{lr}
+<pre><code>  2\sum\limits_{i=1}^{n}(w_0 + \sum\limits_{j=1}^{k} w_jX_{j_i} -Y_i) &amp; \text{if } j = 0\\
+  2\sum\limits_{i=1}^{n}X_{j_i}(w_0 + \sum\limits_{j=1}^{k} w_jX_{j_i} -Y_i)&amp; \text{if } j &gt; 0\\
+</code></pre>
+  \end{array}
+\right}
+\end{equation}</li>
+<li><p>By using $\text{One-Half RSS} = \frac{1}{2}\sum\limits_{i=1}^{n} (\hat{Y}_i - Y_i)^2 = \frac{1}{2}\sum\limits_{i=1}^{n} (w_0 + \sum\limits_{j=1}^{k} w_jX_{j_i} - Y_i)^2$:
+\begin{equation}
+\frac{\delta RSS}{\delta w_j} = 
+\left{
+  \begin{array}{lr}</p>
+
+<pre><code>  \sum\limits_{i=1}^{n}(w_0 + \sum\limits_{j=1}^{k} w_jX_{j_i} -Y_i) &amp; \text{if } j = 0\\
+  \sum\limits_{i=1}^{n}X_{j_i}(w_0 + \sum\limits_{j=1}^{k} w_jX_{j_i} -Y_i)&amp; \text{if } j &gt; 0\\
+</code></pre>
+<p>\end{array}
+\right}
+\end{equation}</p>
+</li>
+<li><p>For $j=0$ to $k$ features, gradient descent would be: $w_j = w_j - \alpha \frac{\delta RSS}{\delta w_j}$</p>
+<ul>
+<li>Alternatively:
+\begin{equation}
+w_j = 
+\left{
+\begin{array}{lr}
+<pre><code>w_0 - \alpha\sum\limits_{i=1}^{n}(\hat{Y}_i -Y_i) &amp; \text{if } j = 0\\
+w_j - \alpha\sum\limits_{i=1}^{n}X_{j_i}(\hat{Y}_i -Y_i)&amp; \text{if } j &gt; 0\\
+</code></pre>
+\end{array}
+\right}
+\end{equation}</li>
+<li>With the dot product:
+\begin{equation}
+w_j = 
+\left{
+\begin{array}{lr}
+<pre><code>w_0 - \alpha\sum\limits_{i=1}^{n}(\hat{Y}_i -Y_i) &amp; \text{if } j = 0\\
+w_j - \alpha[X_{j_i}\cdot (\hat{Y}_i -Y_i)]&amp; \text{if } j &gt; 0\\
+</code></pre>
+\end{array}
+\right}
+\end{equation}</li>
+</ul>
+</li>
+</ul>
+
+</div>
+</div>
+</div>
+</div>
+
+
+
+  </div><a class="u-url" href="/gradient%20descent/optimization/mse/rss/partial%20derivatives/2023/01/02/_01_03_Gradient_Descent.html" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col">
+        <p class="feed-subscribe">
+          <a href="https://fastpages.fast.ai/feed.xml">
+            <svg class="svg-icon orange">
+              <use xlink:href="/assets/minima-social-icons.svg#rss"></use>
+            </svg><span>Subscribe</span>
+          </a>
+        </p>
+      </div>
+      <div class="footer-col">
+        <p>An easy to use blogging platform with support for Jupyter Notebooks.</p>
+      </div>
+    </div>
+
+    <div class="social-links"><ul class="social-media-list"><li>
+  <a rel="me" href="https://github.com/hunter-phillips/" target="_blank" title="github">
+    <svg class="svg-icon grey">
+      <use xlink:href="/assets/minima-social-icons.svg#github"></use>
+    </svg>
+  </a>
+</li>
+<li>
+  <a rel="me" href="https://www.linkedin.com/in/hunter-j-phillips/" target="_blank" title="linkedin">
+    <svg class="svg-icon grey">
+      <use xlink:href="/assets/minima-social-icons.svg#linkedin"></use>
+    </svg>
+  </a>
+</li>
+</ul>
+</div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
